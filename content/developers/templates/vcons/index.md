@@ -14,17 +14,17 @@ toc: true
 aliases:
 ---
 vCons safely and securely carry conversations from the network elements that create them to the applications that analyze them, enabling responsible management of the most personal of data.
-Recording the current state of a vCon on DataTrails secures the integrity and inclusion of the vCon from tampering or deleting a specific version.
+Recording a cryptographic hash of a vCon on DataTrails secures the integrity and inclusion of the vCon from tampering or deletion.
 
 ## Version
 
-Template Version `0.2.0`
+Template Version `0.3.0`
 
 ## vCon Event Example
 
 The following provides a template for how to secure a vCon on DataTrails.
 
-The following example highlights a typical [DataTrails Event](../../api-reference/events-api/), based on a vCon:
+The following example highlights a typical [DataTrails Asset-Event](../../api-reference/asset-events-api/), based on a vCon:
 
 ```json
 {
@@ -34,7 +34,7 @@ The following example highlights a typical [DataTrails Event](../../api-referenc
     "arc_display_type": "vcon_created",
     "conserver_link": "DataTrails",
     "conserver_link_name":  "datatrails_created",
-    "conserver_link_version": "0.2.0",
+    "conserver_link_version": "0.3.0",
     "payload_hash_alg": "SHA-256",
     "payload_preimage_content_type": "application/vcon+json",
     "payload": "5cdc3d525e...bfac2e948f31b61",
@@ -96,7 +96,7 @@ links:
   datatrails-created:
     module: links.datatrails
     options:
-      api_url: "https://app.datatrails.ai/archivist/v2"
+      api_url: "https://app.datatrails.ai/archivist"
       vcon_operation: "vcon_created"
       auth:
         type: "OIDC-client-credentials"
@@ -106,7 +106,7 @@ links:
   datatrails_consent_revoked:
     module: links.datatrails
     options:
-      api_url: "https://app.datatrails.ai/archivist/v2"
+      api_url: "https://app.datatrails.ai/archivist"
       vcon_operation: "vcon_consent_revoked"
       auth:
         type: "OIDC-client-credentials"
@@ -139,7 +139,7 @@ In both instances, the `conserver_link` would be `DataTrails`.
 ### conserver_link_version (OPTIONAL)
 
 The version of the `conserver_link`.
-This template applies to version `0.2.0`
+This template applies to version `0.3.0`
 
 ### payload (REQUIRED)
 
