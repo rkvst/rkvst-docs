@@ -25,7 +25,7 @@ The following provides a template for securing a vCon with a SCITT Signed Statem
 
 ## Version
 
-Template Version `0.2.0`
+Template Version `0.3.0`
 
 ## vCon Signed Statement Example
 
@@ -100,7 +100,7 @@ Unprotected_Header = {
 -6804:[                          meta-map (* tstr => tstr)      /
         0: 'conserver_link":         'scitt',
         0: 'conserver_link_name":    'scitt_created',
-        0: 'conserver_link_version": '0.2.0',
+        0: 'conserver_link_version": '0.3.0',
         0: 'timestamp_declared":     '2024-05-07T16:33:29.004994',
         0: 'vcon_operation":         'vcon_create',
         0: 'vcon_draft_version":     '01',
@@ -148,7 +148,7 @@ The following values are added to the Protected Header meta-map, providing enoug
 {
   "conserver_link": "scitt",
   "conserver_link_name":  "scitt_created",
-  "conserver_link_version": "0.2.0",
+  "conserver_link_version": "0.3.0",
   "timestamp_declared": "2024-05-07T16:33:29.004994",
   "vcon_operation": "vcon_create",
   "vcon_draft_version": "01",
@@ -222,7 +222,7 @@ In both instances, the `conserver_link` would be `scitt`.
 ### conserver_link_version (OPTIONAL)
 
 The version of the `conserver_link`.
-This template applies to version `0.2.0`
+This template applies to version `0.3.0`
 
 ### timestamp_declared (REQUIRED)
 
