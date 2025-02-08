@@ -87,7 +87,7 @@ In a future release, Events will be created independently from Assets.
       -H "@$HOME/.datatrails/bearer-token.txt" \
       -H "Content-type: application/json" \
       -d "@/tmp/event.json" \
-      https://app.datatrails.ai/archivist/v2/assets/$ASSET_ID/events \
+      https://app.datatrails.ai/archivist/v2/$ASSET_ID/events \
       | jq
   ```
 
@@ -135,6 +135,73 @@ In a future release, Events will be created independently from Assets.
   ```
 
 - To query the events jump to [Fetch Specific Events by Identity](#fetch-events-for-a-specific-asset)
+
+### DataTrails Reserved Attributes
+
+The DataTrails platform has reserved attributes starting with `arc_` to perform specific capabilities.
+See [Reserved Attributes](/glossary/reserved-attributes/) for more info.
+
+### Asset-Event Primary Image
+
+Asset-Events can use the [Blobs API](/developers/api-reference/blobs-api/) to associate a primary image in the DataTrails Application.
+
+#### Primary Image Variables
+
+- To associate an existing Blob, set the `BLOB_ID`, `BLOB_HASH` value and `BLOB_FILE` from the [Blobs API](/developers/api-reference/blobs-api/):
+
+  {{< note >}}
+  NOTE: The `ASSET_ID` dependency will be removed with [Non-asset based Events (preview)](/developers/api-reference/events-api/)
+  {{< /note >}}
+
+  ```bash
+  ASSET_ID=<asset-id>
+  BLOB_ID=<blob-id>
+  BLOB_FILE=<file.ext>
+  BLOB_HASH=<hash-value>
+  ```
+
+  Example:
+
+  ASSET_ID=assets/a1234567-890a  
+  BLOB_ID=blobs/b1234567-890b  
+  BLOB_FILE=conformance.pdf  
+  BLOB_HASH=h1234567hh  
+
+- Associate a Blob as the Event Primary Image:
+
+  ```json
+  cat > /tmp/event.json <<EOF
+  {
+    "operation": "Record",
+    "behaviour": "RecordEvidence",
+    "event_attributes": {
+      "arc_primary_image": {
+        "arc_attribute_type": "arc_attachment",
+        "arc_display_name": "arc_primary_image",
+        "arc_blob_identity": "$BLOB_ID",
+        "arc_blob_hash_alg": "SHA256",
+        "arc_blob_hash_value": "$BLOB_HASH",
+        "arc_file_name": "$BLOB_FILE"
+      }
+    }
+  }
+  EOF
+  ```
+
+- POST the Event Primary Image:
+
+  ```bash
+  curl -X POST \
+      -H "@$HOME/.datatrails/bearer-token.txt" \
+      -H "Content-type: application/json" \
+      -d "@/tmp/event.json" \
+      https://app.datatrails.ai/archivist/v2/$ASSET_ID/events \
+      | jq
+  ```
+
+### Adding Attachments
+
+To associate an Attachment with an Asset-Event, see the [Attachments API](/developers/api-reference/attachments-api/)
 
 ### Document Profile Event Creation
 
@@ -184,7 +251,7 @@ There are two [Document Profile Events](/developers/developer-patterns/document-
       -H "@$HOME/.datatrails/bearer-token.txt" \
       -H "Content-type: application/json" \
       -d "@/tmp/event.json" \
-      https://app.datatrails.ai/archivist/v2/assets/$ASSET_ID/events \
+      https://app.datatrails.ai/archivist/v2/$ASSET_ID/events \
       | jq
   ```
 
@@ -271,7 +338,7 @@ There are two [Document Profile Events](/developers/developer-patterns/document-
       -H "@$HOME/.datatrails/bearer-token.txt" \
       -H "Content-type: application/json" \
       -d "@/tmp/event.json" \
-      https://app.datatrails.ai/archivist/v2/assets/$ASSET_ID/events \
+      https://app.datatrails.ai/archivist/v2/$ASSET_ID/events \
       | jq
   ```
 
@@ -314,128 +381,19 @@ There are two [Document Profile Events](/developers/developer-patterns/document-
   }
   ```
 
-### Adding Attachments
+## Asset Event Record Retrieval
 
-The following assumes that an attachment has already been uploaded to DataTrails using the [Blob API](../blobs-api).
-
-This attachment uuid is generically referred to as:
+Asset Event records in DataTrails are tokenized at creation time and referred to in all future API calls by a permanent unique identity of the form:
 
 ```bash
-blobs/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
-```
-
-Each attachment has an associated hash value and the name of the hash algorithm used that you can also get from the Blob API response.
-
-- After uploading the content, use the `"arc_attribute_type": "arc_attachment"` key-value pair within a dictionary of blob information to add the attachment to the Event.
-
-  ```json
-  cat > /tmp/event.json <<EOF
-  {
-    "operation": "Record",
-    "behaviour": "RecordEvidence",
-    "event_attributes": {
-      "arc_display_type": "Safety Conformance",
-      "arc_description": "Safety conformance approved for version 1.6. See attached conformance report",
-      "arc_evidence": "DVA Conformance Report attached",
-      "conformance_report": {
-        "arc_attribute_type": "arc_attachment",
-        "arc_blob_hash_value": "$BLOB_HASH",
-        "arc_blob_identity": "blobs/$BLOB_ID",
-        "arc_blob_hash_alg": "SHA256",
-        "arc_file_name": "safety_conformance.pdf",
-        "arc_display_name": "Conformance Report"
-      },
-      "arc_primary_image": {
-        "arc_attribute_type": "arc_attachment",
-        "arc_blob_hash_value": "$BLOB_HASH",
-        "arc_blob_identity": "blobs/$BLOB_ID",
-        "arc_blob_hash_alg": "SHA256",
-        "arc_file_name": "photo.jpg",
-        "arc_display_name": "arc_primary_image"
-      }
-    },
-    "timestamp_declared": "2019-11-27T14:44:19Z",
-    "principal_declared": {
-      "issuer": "idp.synsation.io/1234",
-      "subject": "phil.b",
-      "email": "phil.b@synsation.io"
-    }
-  }
-  EOF
-  ```
-
-- Add the request to the Asset Record by POSTing it to the resource:
-
-  ```bash
-  curl -X POST \
-      -H "@$HOME/.datatrails/bearer-token.txt" \
-      -H "Content-type: application/json" \
-      -d "@/tmp/event.json" \
-      https://app.datatrails.ai/archivist/v2/assets/$ASSET_ID/events \
-      | jq
-  ```
-
-  The response:
-
-  ```json
-  {
-    "identity": "assets/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/events/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-    "asset_identity": "assets/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-    "operation": "Record",
-    "behaviour": "RecordEvidence",
-    "event_attributes": {
-      "arc_display_type": "Safety Conformance",
-      "arc_description": "Safety conformance approved for version 1.6. See attached conformance report",
-      "arc_evidence": "DVA Conformance Report attached",
-      "conformance_report": {
-        "arc_attribute_type": "arc_attachment",
-        "arc_blob_hash_value": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-        "arc_blob_identity": "blobs/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-        "arc_blob_hash_alg": "SHA256",
-        "arc_file_name": "safety_conformance.pdf",
-        "arc_display_name": "Conformance Report",
-      },
-      "arc_primary_image": {
-        "arc_attribute_type": "arc_attachment",
-        "arc_blob_hash_value": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-        "arc_blob_identity": "blobs/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-        "arc_blob_hash_alg": "SHA256",
-        "arc_file_name": "safety_conformance.pdf",
-        "arc_display_name": "Conformance Report",
-      },
-    },
-    "timestamp_accepted": "2019-11-27T15:13:21Z",
-    "timestamp_declared": "2019-11-27T14:44:19Z",
-    "timestamp_committed": "2019-11-27T15:15:02Z",
-    "principal_declared": {
-      "issuer": "idp.synsation.io/1234",
-      "subject": "phil.b",
-      "email": "phil.b@synsation.io"
-    },
-    "principal_accepted": {
-      "issuer": "job.idp.server/1234",
-      "subject": "bob@job"
-    },
-    "confirmation_status": "COMMITTED",
-    "block_number": 12,
-    "transaction_index": 5,
-    "transaction_id": "0x07569"
-  }
-  ```
-
-### Event Record Retrieval
-
-Event records in DataTrails are tokenized at creation time and referred to in all future API calls by a permanent unique identity of the form:
-
-```bash
-assets/$ASSET_ID/events/$EVENT_ID
+assets/a1234567-890a/events/$EVENT_ID
 ```
 
 If you do not know the Event’s identity you can fetch Event records using other information you do know.
 
-#### Fetch All Events
+### Fetch All Asset Events
 
-- To fetch all Event records, simply `GET` the Events resources:
+- To fetch all Asset Event records, simply `GET` the Events resources:
 
   ```bash
   curl -X GET \
@@ -444,31 +402,31 @@ If you do not know the Event’s identity you can fetch Event records using othe
       | jq
   ```
 
-#### Fetch Events for a Specific Asset
+### Fetch Asset Events for a Specific Asset
 
 - If you know the unique identity of the Asset record simply `GET` the resource:
 
   ```bash
   curl -X GET \
       -H "@$HOME/.datatrails/bearer-token.txt" \
-      "https://app.datatrails.ai/archivist/v2/assets/$ASSET_ID/events?page_size=5" \
+      "https://app.datatrails.ai/archivist/v2/$ASSET_ID/events?page_size=5" \
       | jq
   ```
 
-#### Fetch Specific Events by Identity
+### Fetch Specific Asset Events by Identity
 
 - If you know the unique identity of the Asset and Event record simply `GET` the resource:
 
   ```bash
   curl -X GET \
       -H "@$HOME/.datatrails/bearer-token.txt" \
-      "https://app.datatrails.ai/archivst/v2/assets/$ASSET_ID/events/$EVENT_ID" \
+      "https://app.datatrails.ai/archivst/v2/$ASSET_ID/events/$EVENT_ID" \
       | jq
   ```
 
-#### Fetch Event by Type
+### Fetch Asset Event by Type
 
-- To fetch all Events of a specific type, `GET` the Events resource and filter on `arc_display_type`:
+- To fetch all Asset Events of a specific type, `GET` the Events resource and filter on `arc_display_type`:
 
   ```bash
   curl -g -X GET \
@@ -477,9 +435,9 @@ If you do not know the Event’s identity you can fetch Event records using othe
       | jq
   ```
 
-#### Fetch Event by Asset Attribute
+### Fetch Asset Event by Asset Attribute
 
-- To fetch all Events of a specific Asset attribute, `GET` the Events resource and filter on `asset_attributes` at the Asset level:
+- To fetch all Asset Events of a specific Asset attribute, `GET` the Events resource and filter on `asset_attributes` at the Asset level:
 
   ```bash
   curl -g -X GET \
@@ -488,9 +446,9 @@ If you do not know the Event’s identity you can fetch Event records using othe
       | jq
   ```
 
-#### Fetch Events by Filtering for Presence of a Field
+### Fetch Asset Events by Filtering for Presence of an Attribute
 
-- To fetch all Events with a field set to any value, `GET` the Events resource and filter on most available fields. For example:
+- To fetch all Asset Events with an Attribute set to any value, `GET` the Asset-Events resource and filter on most available attributes.
 
   ```bash
   curl -g -X GET \
@@ -501,9 +459,9 @@ If you do not know the Event’s identity you can fetch Event records using othe
 
   Returns all Events which have `arc_display_type` that is not empty.
 
-#### Fetch Events Which are Missing a Field
+### Fetch Asset Events Which are Missing a Field
 
-- To fetch all Events with a field which is not set to any value, `GET` the Events resource and filter on most available fields. For example:
+- To fetch all Asset Events with a field which is not set to any value, `GET` the Events resource and filter on most available fields.
 
   ```bash
   curl -g -X GET \
@@ -512,11 +470,11 @@ If you do not know the Event’s identity you can fetch Event records using othe
       | jq
   ```
 
-  Returns all Events which do not have `arc_display_type` or in which `arc_display_type` is empty.
+  Returns all Asset Events which do not have `arc_display_type` or in which `arc_display_type` is empty.
 
-#### Fetch Events by Minimum Confirmation Status
+### Fetch Asset Events by Minimum Confirmation Status
 
-- To fetch all Events with a specified confirmation status or higher, `GET` the Events resource and filter on `minimum_trust`.
+- To fetch all Asset Events with a specified confirmation status or higher, `GET` the Events resource and filter on `minimum_trust`.
 
   ```bash
   curl -g -X GET \
@@ -525,7 +483,7 @@ If you do not know the Event’s identity you can fetch Event records using othe
       | jq
   ```
 
-- To fetch all Events which have a `confirmation_status` level of COMMITTED, CONFIRMED or UNEQUIVOCAL.
+- To fetch all Asset Events which have a `confirmation_status` level of COMMITTED, CONFIRMED or UNEQUIVOCAL.
 
   ```bash
   curl -g -X GET \
@@ -534,7 +492,7 @@ If you do not know the Event’s identity you can fetch Event records using othe
       | jq
   ```
 
-  Returns all Events which have a `confirmation_status` level of CONFIRMED or UNEQUIVOCAL.
+  Returns all Asset Events which have a `confirmation_status` level of CONFIRMED or UNEQUIVOCAL.
 
 ## Events OpenAPI Docs
 

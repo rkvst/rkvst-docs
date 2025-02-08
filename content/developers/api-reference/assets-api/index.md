@@ -93,7 +93,7 @@ Additional YAML examples can be found in the articles in the [Overview](/platfor
   }
   ```
 
-### Assets With a Primary Image
+### Primary Image
 
 An Asset can have a primary image, displayed in the DataTrails Application.
 The image must first be uploaded with the [Blobs API](/developers/api-reference/blobs-api/), with the BLOB_ID, BLOB_HASH and BLOB_FILE captured for uploading the asset.
@@ -102,9 +102,16 @@ The image must first be uploaded with the [Blobs API](/developers/api-reference/
 
   ```bash
   BLOB_ID=<blob-id>
-  BLOB_FILE=file.jpg
-  BLOB_HASH=<hash>
+  BLOB_FILE=cat.jpg
+  BLOB_HASH=<hash-value>
   ```
+
+  Example:
+
+  ASSET_ID=assets/a1234567-890a  
+  BLOB_ID=blobs/b1234567-890b  
+  BLOB_FILE=cat.jpg  
+  BLOB_HASH=h1234567h  
 
   ```bash
   cat > /tmp/asset.json <<EOF
@@ -116,7 +123,7 @@ The image must first be uploaded with the [Blobs API](/developers/api-reference/
       "weight": "3.6kg",
       "arc_primary_image": {
         "arc_attribute_type": "arc_attachment",
-        "arc_blob_identity": "blobs/$BLOB_ID",
+        "arc_blob_identity": "$BLOB_ID",
         "arc_blob_hash_alg": "SHA256",
         "arc_blob_hash_value": "$BLOB_HASH",
         "arc_display_name": "arc_primary_image",

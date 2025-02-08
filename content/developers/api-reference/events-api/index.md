@@ -91,6 +91,68 @@ Additional YAML examples can be found in the articles in the [Overview](/platfor
   }
   ```
 
+### DataTrails Reserved Attributes
+
+### DataTrails Reserved Attributes
+
+The DataTrails platform has reserved attributes starting with `arc_` to perform specific capabilities.
+See [Reserved Attributes](/glossary/reserved-attributes/) for more info.
+
+### Event Primary Image
+
+Events can use the [Blobs API](/developers/api-reference/blobs-api/) to associate a primary image in the DataTrails Application.
+
+#### Primary Image Variables
+
+- To associate an existing Blob, set the `BLOB_ID`, `BLOB_HASH` value and `BLOB_FILE` from the [Blobs API](/developers/api-reference/blobs-api/):
+
+  ```bash
+  BLOB_ID=<blob-id>
+  BLOB_FILE=<file.ext>
+  BLOB_HASH=<hash-value>
+  ```
+
+  Example:
+
+  BLOB_ID=blobs/b1234567-890b  
+  BLOB_FILE=conformance.pdf  
+  BLOB_HASH=h1234567h  
+
+- Associate a Blob as the Event Primary Image:
+
+  ```json
+  cat > /tmp/event.json <<EOF
+  {
+    "trails": ["Safety Conformance", "Clouseau"],
+    "attributes": {
+      "arc_primary_image": {
+        "arc_attribute_type": "arc_attachment",
+        "arc_display_name": "arc_primary_image",
+        "arc_blob_hash_value": "$BLOB_HASH",
+        "arc_blob_identity": "$BLOB_ID",
+        "arc_blob_hash_alg": "SHA256",
+        "arc_file_name": "$BLOB_FILE"
+      }
+    }
+  }
+  EOF
+  ```
+
+- POST the Event Primary Image:
+
+  ```bash
+  curl -X POST \
+      -H "@$HOME/.datatrails/bearer-token.txt" \
+      -H "Content-type: application/json" \
+      -d "@/tmp/event.json" \
+      https://app.datatrails.ai/archivist/v1/events \
+      | jq
+  ```
+
+### Adding Attachments
+
+To associate an Attachment with an Event, see the [Attachments API](/developers/api-reference/attachments-api/)
+
 ### Event Record Retrieval
 
 Event records in DataTrails are assigned UUIDs at creation time and referred to in all future API calls by a their unique identity in the format: `events/<event-id>`

@@ -1,7 +1,7 @@
 ---
 title: "Advanced Concepts"
 description: "DataTrails Advanced Concepts"
-lead: "This section goes into more detail on some the subjects covered in Core Concepts, as well as introducing additional advanced topics."
+lead: "This section goes into more detail on subjects covered in Core Concepts, introducing some additional concepts."
 date: 2021-06-14T10:57:58+01:00
 lastmod: 2024-03-19T10:57:58+01:00
 draft: false
@@ -18,11 +18,12 @@ aliases:
 ## Events
 
 The principal objects in the DataTrails platform are *Events*.
-These are the records that represent the collective ['Golden Thread'](/platform/overview/core-concepts/#the-golden-thread) of evidence contributed by all stakeholders about a particular thing.
+These are the records that represent the collective ['Golden Thread'](/platform/overview/core-concepts/#the-golden-thread) of evidence contributed by all stakeholders about a particular *thing*.
 
-That 'thing' really can represent anything: a file, a piece of data, a physical thing or even a business process.
+That *thing* can represent anything: a file, a piece of data, a physical thing or even a business process.
+All that's needed is an identifier of the *thing* to corelate across the Events recorded about the *thing*.
 As long as shared accountability needs to be traced and trustworthy, Events can be recorded about it.
-If there are _moments that matter_ they can be committed to the immutable audit log.
+If there are *moments that matter* they can be committed to the DataTrails immutable audit log.
 
 What defines a moment that matters? It's all about the use case: if you think you might need to prove something in a multi-party dispute later, chances are you can save a lot of time and stress by committing it to the ledger.
 Simply looking and knowing the current state of things isn't enough: sure, it has software version 3.0 now but when was that released? Before the major incident? After the major incident? This morning before the support call? By recording events into an immutable audit trail, questions relating to that fact can be answered.
@@ -50,7 +51,7 @@ This will ensure best performance and minimal code changes to take advantage of 
 Trails will still support simple properties like types, descriptions and thumbnails for search and grouping purposes.
 {{< /note >}}
 
-In the current platform, Events are registered into collections called _Assets_.
+In the current platform, Events are registered into collections called *Assets*.
 [Assets](/developers/api-reference/assets-api/) may represent an individual thing, a class of things, or something more abstract like 'all Events for this day'.
 As Assets are retired, Events can still be correlated by Trails or Event Attributes.
 
@@ -64,10 +65,10 @@ An essential value of storing evidence in DataTrails is that data is always avai
 Given this, it is not possible to actually delete Assets from the system, but there will be cases where it is desirable to hide Assets in the UI or omit them from default searches or compliance queries (for instance as a result of decommissioning or disposal of the corresponding physical asset).
 
 To accommodate this need DataTrails separates the Asset estate into 2 classes: tracked Assets (those that are interesting to the system and actively recording events) and untracked Assets (those that are no longer actively interesting).
-When for any reason it becomes desirable to remove an Asset, the Asset owner can make it _untracked_ so that it does not appear in lists or searches.
+When for any reason it becomes desirable to remove an Asset, the Asset owner can make it *untracked* so that it does not appear in lists or searches.
 
 {{< caution >}}
-**Caution:** Untracking an Asset does not remove it or its Event history from the system; all stakeholders who previously had access to the record will continue to have access to the Event history, _including_ the untracking event, if they look for it.
+**Caution:** Untracking an Asset does not remove it or its Event history from the system; all stakeholders who previously had access to the record will continue to have access to the Event history, *including* the untracking event, if they look for it.
 {{< /caution >}}
 
 ### Timestamps on Events
@@ -90,7 +91,7 @@ Having these 3 fields enables users of DataTrails to accurately reflect what is 
 
 ### User Principals on Events
 
-Just as with the "When", the "Who" of “Who Did What When to an Artifact" is potentially complicated. 
+Just as with the "When", the "Who" of “Who Did What When to an Artifact" is potentially complicated.
 For example, an application or gateway may be acting on behalf of some other real-world user.
 
 Once committed to the DataTrails system, each lifecycle Event record carries 2 separate user identities:
@@ -123,7 +124,7 @@ This one-time manual process helps to underpin trust and security in your DataTr
 ### Public Attestations
 
 While a strict, 1-to-1 relationship might be desirable for some use cases, it is also possible that a recorded asset and associated events are recorded in a more widely accessible way.
-With the use of the _Public_ setting for an asset, you can create an access policy which enables anyone to view that asset record.
+With the use of the *Public* setting for an asset, you can create an access policy which enables anyone to view that asset record.
 A viewer of that asset does not have to be registered with DataTrails, and can anonymously use our [Instaproof](/platform/overview/instaproof) service to check the thing they have against the public record in DataTrails.
 
 {{< note >}}
@@ -234,7 +235,7 @@ A simple Access Policy may look like this:
 
 {{< note >}}
 **Note:** Observe that there are 2 lists in the `filters` which concern different attributes.
-The effect of this is to say that an Asset matches the filters if it matches _at least one_ entry from _every list_.
+The effect of this is to say that an Asset matches the filters if it matches *at least one* entry from *every list_.
 Or in other words, inner lists are `OR`, while outer lists are `AND`.
 
 For example:
@@ -267,7 +268,7 @@ Revoking access can therefore be achieved in a number of ways, any of which may 
 
 {{< note >}}
 **Note:** As with any fair decentralized system it is not possible to 'unsee' information.
-Any change in OBAC access policies *including revoking OBAC access to a value chain partner* only applies to new information contributed _after_ the policy change.
+Any change in OBAC access policies *including revoking OBAC access to a value chain partner* only applies to new information contributed *after* the policy change.
 This ensures continued fair access to the historic evidence base for all legitimate participants whilst also maintaining control of future operations with the Asset owner.
 {{< /note >}}
 
@@ -308,7 +309,7 @@ DataTrails supports *GIS coordinates* on Events, which enable recording of exact
 
 {{< img src="gis_tracking.png" alt="Rectangle" caption="<em>Tracking Assets with GIS coordinates</em>" class="border-0" >}}
 
-If you're wanting to track the movement of an Asset, or record an audit trail of _where_ a particular Event happens, you can add `arc_gis_lat` and `arc_gis_lng` attributes to the `event_attributes`.
+If you're wanting to track the movement of an Asset, or record an audit trail of *where* a particular Event happens, you can add `arc_gis_lat` and `arc_gis_lng` attributes to the `event_attributes`.
 
 For example:
 
